@@ -5,8 +5,9 @@
   import { tenantOf } from '#lib/kb/locales';
   import { splitByCause } from '#lib/kb/split';
 
-  // tickets: cause → the ticket filed for it.
-  let { ticket, tickets }: { ticket: number; tickets: Record<string, string> } = $props();
+  // tickets: cause → the ticket filed for it and what became of it.
+  type Filed = { href: string; label: string; outcome: string };
+  let { ticket, tickets }: { ticket: number; tickets: Record<string, Filed> } = $props();
 
   const rows = $derived((reports as Report[]).filter((r) => r.mergedInto === ticket));
   const merged = $derived(uniqueById(rows));
@@ -22,22 +23,30 @@
 
 <table>
   <thead>
-    <tr><th>cause</th><th>reports</th><th>intake tagged otherwise</th><th>tenants</th><th>seen</th><th>ticket</th></tr>
+    <tr><th>cause</th><th>reports</th><th>intake tagged otherwise</th><th>tenants</th><th>seen</th><th>ticket</th><th>outcome</th></tr>
   </thead>
   <tbody>
     {#each groups as g (g.cause)}
-      <tr>
+      <tr class:open={tickets[g.cause]?.outcome === 'open'}>
         <td><code>{g.cause}</code></td>
-        <td>{g.reports.length}</td>
+        <td>{g.reports.length}{#if g.filedUnder}<sup>*</sup>{/if}</td>
         <td>{mistagged(g)}</td>
         <td>{g.tenants}</td>
         <td>{g.firstSeen} → {g.lastSeen}</td>
-        <td>{#if tickets[g.cause]}<a href={tickets[g.cause]}>{tickets[g.cause].split('/').slice(-3).join(' ').replace(' issues ', ' #')}</a>{:else}none{/if}</td>
+        <td>{#if tickets[g.cause]}<a href={tickets[g.cause].href}>{tickets[g.cause].label}</a>{:else}none{/if}</td>
+        <td>{tickets[g.cause]?.outcome ?? '—'}</td>
       </tr>
     {/each}
   </tbody>
 </table>
 
+{#each groups.filter((g) => g.filedUnder) as g (g.cause)}
+  <p class="note">* {g.reports.length} reports read as a one-day move; filed under <code>{g.filedUnder}</code> by tenant and counted there too, as the desk counts them.</p>
+{/each}
+
 <style>
   .sum { font-size: 1.1rem; }
+  .note { color: var(--muted); font-size: 0.85em; }
+  .open td { background: var(--warn-bg); }
+  .open td:last-child { color: var(--warn); font-weight: 600; }
 </style>

@@ -1,16 +1,17 @@
-// Splits a ticket's reports by cause, with the desk's one-day moves (desk-notes.json) as their own
-// cause: they are no swap, so neither `parser` nor `hint` fixes them.
-import { groupByCause, type CauseGroup, type Report, type Tenant } from '#lib/kb/causes';
+// The desk's view of a ticket (groupByCause, as CauseTable counts it), plus the reports the desk read
+// differently (desk-notes.json) as a cause of their own: counted where they're filed, and again here,
+// because the fix for the cause they're filed under does not fix them.
+import { groupByCause, readAs, type CauseGroup, type Report, type Tenant } from '#lib/kb/causes';
 
-export type SplitGroup = Omit<CauseGroup, 'cause'> & { cause: CauseGroup['cause'] | 'shift' };
+export type SplitGroup = Omit<CauseGroup, 'cause'> & { cause: CauseGroup['cause'] | 'shift'; filedUnder?: CauseGroup['cause'] };
 
 export function splitByCause(reports: Report[], tenantOf: (r: Report) => Tenant | undefined, shiftIds: readonly string[]): SplitGroup[] {
+  const groups: SplitGroup[] = groupByCause(reports, tenantOf);
   const shift = reports.filter((r) => shiftIds.includes(r.id));
-  const rest = reports.filter((r) => !shiftIds.includes(r.id));
-  const groups: SplitGroup[] = groupByCause(rest, tenantOf);
   if (shift.length) {
     const [g] = groupByCause(shift, () => undefined);
-    groups.push({ ...g, cause: 'shift' });
+    const filedUnder = groups.find((x) => readAs(x as CauseGroup, shiftIds) > 0)?.cause as CauseGroup['cause'] | undefined;
+    groups.push({ ...g, cause: 'shift', filedUnder });
   }
-  return groups.sort((a, b) => b.reports.length - a.reports.length);
+  return groups;
 }
