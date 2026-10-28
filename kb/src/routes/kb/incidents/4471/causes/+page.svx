@@ -1,0 +1,57 @@
+---
+layout: runbook
+title: '#4471 is three problems'
+owner: AndriyLytvynskyy
+status: open
+reviewed: 2026-10-28
+signature: AndriyLytvynskyy
+---
+
+<script>
+  import SplitTable from '#lib/kb/SplitTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const repo = 'https://github.com/AndriyLytvynskyy/what-it-shows/issues';
+  const tickets = { parser: `${repo}/1`, hint: `${repo}/2`, shift: `${repo}/3` };
+</script>
+
+[#4471](/kb/incidents/4471) says one issue, one fix queued. Its reports say otherwise: they were
+merged on subject line ([decision 0001](/kb/decisions/0001-dedupe-by-subject)), and a subject
+line says that a date is wrong, not why. Read by tenant, form and body, the merged reports are
+three problems. Each now has its own ticket.
+
+<Callout kind="warn">
+The fix queued for #4471 fixes the parser only. The other two keep coming after it ships.
+</Callout>
+
+## The split
+
+<SplitTable ticket={4471} {tickets} />
+
+## The three problems
+
+- **`parser`**: the shared parser reads every date month first. Our tenants all write the day
+  first, so day and month swap: 7 April comes out as 4 July. This is what #4471 describes.
+- **`hint`**: the booking-v3 form prints `MM/DD/YYYY` under its date field but reads the date
+  day first. People type what the hint says and the date swaps. Only form reports from booking-v3
+  tenants. The parser fix does not touch the form.
+- **`shift`**: the booking moves by one day, no swap; the same meeting shows Tuesday in Lisbon
+  and Monday in Toronto. A timezone or day-boundary bug. The desk already noted these
+  (`desk-notes.json`, `oneDayMove`) and filed them under `parser` by tenant.
+
+## How it was counted
+
+- One id, one report: the export pages overlap, so some reports come twice.
+- Cause by tenant locale, booking form and channel (`causes.ts`), not by intake tag. Intake guesses
+  from the browser; the table shows how often it guessed a different cause.
+- The `shift` reports are the desk's own list, checked against every report body: the others
+  quote a day/month swap or no comparable dates.
+
+## For the desk
+
+- Before merging into a ticket, check that the report has the same cause, not the same subject.
+  The [dedupe explorer](/kb/triage/dedupe) already shows the difference.
+- Reports from booking-v3 forms go to the `hint` ticket, whatever intake tagged them.
+
+<RenderStamp {signature} />
