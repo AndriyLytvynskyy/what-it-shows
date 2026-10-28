@@ -4,7 +4,7 @@ title: '#4471 is three problems'
 owner: AndriyLytvynskyy
 status: open
 reviewed: 2026-10-28
-signature: AndriyLytvynskyy
+signature: v1.eyJzdWIiOiI2NTYiLCJhdWQiOiJjaGFsbGVuZ2U6d2hhdC1pdC1zaG93cyIsImlhdCI6MTc5MzIyMjIwMiwiZXhwIjoxNzkzMzA4NjAyfQ.pbHUjBr84TwXHila-pR0DX7QRWHOybUTui5y5_gmAH8
 ---
 
 <script>

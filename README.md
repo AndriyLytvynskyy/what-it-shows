@@ -12,5 +12,5 @@ Ticket #4471 merged 412 reports as one issue. They are three problems:
 | [#3](https://github.com/AndriyLytvynskyy/what-it-shows/issues/3) | bookings shift by one day (timezone / day boundary) | 5 | open |
 
 - The kb page (source): [`kb/src/routes/kb/incidents/4471/causes/+page.svx`](kb/src/routes/kb/incidents/4471/causes/+page.svx), with its logic in `kb/src/lib/kb/split.ts` and `kb/src/lib/kb/SplitTable.svelte`.
-- The page as the desk sees it (built with SvelteKit + mdsvex): [`rendered/kb/incidents/4471/causes.html`](rendered/kb/incidents/4471/causes.html). Desk ref `DR-8KJE-Z710`.
+- The page as the desk sees it (built with SvelteKit + mdsvex): [`rendered/kb/incidents/4471/causes.html`](rendered/kb/incidents/4471/causes.html). Desk ref `DR-CW8H-B424`.
 - Rebuild: `cd kb && npm ci && npm run build`.
